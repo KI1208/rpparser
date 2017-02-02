@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block body %}
+  {% if session.logged_in %}
+    <p>{{ message }} </P>
+    <form action="{{ url_for('inputfile') }}" method=post class=add-entry enctype="multipart/form-data">
+      File:     <input type="file" name="file" size="30"/><br>
+      Party ID: <input type="text" name="partyid" size="30" placeholder="Party ID"/><br>
+      <input type="submit" />
+    </form>
+  {% endif %}
+
+  <ul class=entries>
+  {% for entry in entries %}
+    <li><h2>{{ entry.filename }}</h2>
+    <a href="{{url_for('current_config',value=entry.filename)}}">構成確認</a>
+	Party ID:   {{ entry.partyid }}<br>
+	Created:    {{ entry.created }}<br>
+	Modified:   {{ entry.modified }}<br>
+  {% else %}
+    <li><em>Unbelievable.  No entries here so far</em>
+  {% endfor %}
+  </ul>
+{% endblock %}
+

@@ -1,0 +1,48 @@
+{% extends "layout.html" %} 
+{% block body %}
+  <table border = "3">
+    <tr bgcolor="skyblue">
+    <td>CG Name</td>
+    <td>Enabled</td>
+    <td>Primary RPA</td>
+    <td>Replication Set</td>
+    {% for i in range(copymax) %}
+    <td>Site</td>
+    <td>Role</td>
+    <td>Journal</td>
+    {% endfor %}
+    </tr>
+  {% for entry in entries %}
+    {% for i in range(entry.rowspan) %}
+    <tr>
+      {% if i == 0 %}
+      <td rowspan = "{{ entry.rowspan }}">{{ entry.name }}</td>
+      <td rowspan = "{{ entry.rowspan }}">{{ entry.enabled }}</td>
+      <td rowspan = "{{ entry.rowspan }}">{{ entry.policy.primaryRPANumber }}</td>
+      {% endif %}
+      
+      {% if entry.replicationSetsSettings[i] %}
+      <td>{{ entry.replicationSetsSettings[i].replicationSetName }}</td>
+      {% else %}
+      <td bgcolor="black">Empty</td>
+      {% endif %}
+      
+      {% for j in range(copymax) %}
+        {% if entry.groupCopiesSettings[j] and entry.groupCopiesSettings[j].journal.journalVolumes[i] %}
+          <td>{{ entry.groupCopiesSettings[j].name }}</td>
+          <td>{{ entry.groupCopiesSettings[j].roleInfo.role }}</td>
+          <td>{{ entry.groupCopiesSettings[j].journal.journalVolumes[i].volumeInfo.volumeName }}</td>
+        {% else %}
+          <td bgcolor="black">Empty</td>
+          <td bgcolor="black">Empty</td>
+          <td bgcolor="black">Empty</td>
+        {% endif %}
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  {% else %}
+    <tr><td columnspan="3">No config data here.</td></tr>
+  {% endfor %}
+  </table>
+{% endblock %}
+
