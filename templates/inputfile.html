@@ -12,7 +12,8 @@
   <ul class=entries>
   {% for entry in entries %}
     <li><h2>{{ entry.filename }}</h2>
-    <a href="{{url_for('current_config',value=entry.filename)}}">構成確認</a>
+    <p><a href="{{url_for('current_config',value=entry.filename)}}">構成確認</a></p>
+    <p><a href="{{url_for('download',value=entry.filename)}}">構成をExcel化してダウンロード</a></p>
 	Party ID:   {{ entry.partyid }}<br>
 	Created:    {{ entry.created }}<br>
 	Modified:   {{ entry.modified }}<br>

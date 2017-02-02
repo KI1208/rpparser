@@ -1,5 +1,5 @@
 from flask import Flask, request, session, g, redirect, url_for, \
-     abort, render_template, flash, jsonify
+     abort, render_template, flash, jsonify, send_from_directory
 from contextlib import closing
 from datetime import datetime, timedelta
 import sqlite3
@@ -7,19 +7,14 @@ import os
 from werkzeug.utils import secure_filename
 import json
 
-# configuration
-DATABASE = '/root/rpparser/db/rpparser.db'
-DEBUG = True
-SECRET_KEY = 'development key'
-USERNAME = 'admin'
-PASSWORD = 'default'
-UPLOAD_FOLDER = '/root/rpparser/uploads'
-ALLOWED_EXTENSIONS = set(['json'])
+## Custom
+from json_to_excel import json_to_excel
 
 # create our little application :)
 app = Flask(__name__)
-app.config.from_object(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+# app.config.from_object(__name__)
+app.config.from_pyfile('config.py')
+# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def connect_db():
     return sqlite3.connect(app.config['DATABASE'])
@@ -42,6 +37,7 @@ def after_request(response):
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
            
 @app.route('/', methods=['GET', 'POST'])
 def inputfile():
@@ -78,7 +74,7 @@ def inputfile():
 @app.route('/current_config')
 def current_config():
     fname = request.args.get('value').replace(' ','_')
-    fpath = UPLOAD_FOLDER + '/' + fname
+    fpath = app.config['UPLOAD_FOLDER'] + fname
     jsonfile = open(fpath,'r')
     config = json.load(jsonfile)
     group_config = config['groupsSettings']
@@ -96,6 +92,15 @@ def current_config():
     return render_template('current_config.html', entries=group_config, copymax=copymax)
     # return render_template('test2.html', key=group_config)
 
+@app.route('/download', methods=['GET', 'POST'])
+def download():
+    fname = request.args.get('value').replace(' ','_')
+    fpath = app.config['UPLOAD_FOLDER'] + fname
+    outputfile = json_to_excel(fpath)
+
+    return send_from_directory(directory=app.config['UPLOAD_FOLDER'], filename=outputfile)
+
+    
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
